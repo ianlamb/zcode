@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Z-Type</title>
+		<link rel="stylesheet" href="styles/foundation.min.css">
+		<link rel="stylesheet" href="styles/app.css">
+		<link rel="stylesheet" href="styles/site.css">
+
+		<script src="http://code.createjs.com/easeljs-0.5.0.min.js"></script>
+		<script src="scripts/modernizr.foundation.js"></script>
+		<script src="scripts/jquery.js"></script>
+		<script src="scripts/foundation.min.js"></script>
+		<script src="scripts/main.js"></script>
+		
+		<!-- IE Fix for HTML5 Tags -->
+		<!--[if lt IE 9]>
+			<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<div class="row">
+			<div class="twelve columns">
+				<h1>Z-Type</h1>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="two columns panel">
+				information / navigation
+			</div>
+			<div class="ten columns" id="z-container">
+				<div class="row">
+					<div class="four columns" id="z-context">
+					asdf<br />
+					asdf
+					</div>
+					<div class="eight columns">
+						<canvas id="z-canvas" width="480px" height="320px">
+							Your browser doesn't support canvas. Please download IE9+ on <a href="http://ie.microsoft.com/testdrive">IE Test Drive</a> 
+						</canvas>
+					</div>
+				</div>
+				<div class="row">
+					<div class="twelve columns" id="z-status">
+						<p id="line-prev2"><span class="line-number"></span></p>
+						<p id="line-prev"><span class="line-number"></span></p>
+						<p id="line-curr"><span class="line-number"></span><span id="letters-typed"></span><span id="curr-letter"></span><span id="letters-remaining"></span></p>
+						<p id="line-next"><span class="line-number"></span></p>
+						<p id="line-next2"><span class="line-number"></span></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="twelve columns panel">
+				Created by:<br />
+				Derek Brown and Ian Lamb
+			</div>
+		</div>
+		
+		<script type="text/javascript">
+			$(document).ready( function() {
+				init();
+			});
+		</script>
+	</body>
+</html>

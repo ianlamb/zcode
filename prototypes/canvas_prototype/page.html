@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Canvas Prototype</title>
+		<style>
+			p,span,div,body,canvas
+			{
+				padding: 0;
+				margin: 0;
+			}
+			body
+			{
+				padding: 5px;
+			}
+		</style>
+		<script src="http://code.createjs.com/easeljs-0.5.0.min.js"></script>
+		<script>
+		var canvas;
+		var stage;
+		var screen_width;
+		var screen_height;
+		var bmpAnimation;
+		var speed = 1.0;
+		var ticks = 0.0;
+		
+		var imgMonsterARun = new Image();
+
+		function init() {
+			canvas = document.getElementById("main-canvas");
+
+			imgMonsterARun.onload = handleImageLoad;
+			imgMonsterARun.onerror = handleImageError;
+			imgMonsterARun.src = "img/player.png";
+		}
+
+		function reset() {
+			stage.removeAllChildren();
+			createjs.Ticker.removeAllListeners();
+			stage.update();
+		}
+
+		function handleImageLoad(e) {
+			startGame();
+		}
+
+		function startGame() {
+			// create a new stage and point it at our canvas:
+			stage = new createjs.Stage(canvas);
+			
+			// grab canvas width and height for later calculations:
+			screen_width = canvas.width;
+			screen_height = canvas.height;
+			
+			// create spritesheet and assign the associated data.
+			var spriteSheet = new createjs.SpriteSheet({
+				// image to use
+				images: [imgMonsterARun], 
+				// width, height & registration point of each sprite
+				framerate: 5,
+				frames: {width: 64, height: 64, regX: 32, regY: 32}, 
+				animations: {	
+					idle: [0, 3, true, 10]
+				}
+			});
+			
+			// create a BitmapAnimation instance to display and play back the sprite sheet:
+			bmpAnimation = new createjs.BitmapAnimation(spriteSheet);
+
+			// start playing the first sequence:
+			bmpAnimation.gotoAndPlay("idle"); 	//animate
+
+			bmpAnimation.name = "monster1";
+			bmpAnimation.direction = 0;
+			bmpAnimation.vX = 4;
+			bmpAnimation.x = 160;
+			bmpAnimation.y = 120;
+				
+			// have each monster start at a specific frame
+			bmpAnimation.currentFrame = 0;
+			stage.addChild(bmpAnimation);
+				
+			// we want to do some work before we update the canvas,
+			// otherwise we could use Ticker.addListener(stage);
+			createjs.Ticker.addListener(window);
+			createjs.Ticker.useRAF = false;
+			createjs.Ticker.setFPS(60);
+		}
+
+		//called if there is an error loading the image (usually due to a 404)
+		function handleImageError(e) {
+			console.log("Error Loading Image : " + e.target.src);
+		}
+
+		function tick() {
+			ticks++;
+			bmpAnimation.x = 160 + ( ( Math.sin( ticks * .05 ) + Math.sin( ticks * 0.025 ) ) * 0.5 )  * 90;
+			bmpAnimation.y = 120 + Math.cos( ticks * .05 ) * 75;
+
+			stage.update();
+		}
+
+		</script>
+	</head>
+	<body>
+		<h1>Watch it go!</h1>
+		<div class="canvasHolder">
+			<canvas id="main-canvas" width="320" height="240" style="background-color:#000000">
+				Your browser doesn't support canvas. Please download IE9+ on <a href="http://ie.microsoft.com/testdrive">IE Test Drive</a> 
+			</canvas>
+		</div>
+		<script type="text/javascript" language="javascript">init();</script>
+	</body>
+</html>

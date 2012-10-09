@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Keyboard Input Prototype</title>
+		<script>
+		function init()
+		{
+			var inputContainer = document.getElementById( "input-container" );
+			
+			var Key = {
+			  _pressed: [],
+			  
+			  isDown: function(keyCode) {
+				return this._pressed[keyCode];
+			  },
+			  
+			  onKeydown: function(event) {
+				if( !this._pressed[event.keyCode] )
+				{
+					inputContainer.textContent = inputContainer.textContent + String.fromCharCode( event.keyCode );
+				}
+				this._pressed[event.keyCode] = true;
+				console.log( String.fromCharCode( event.keyCode ) + " pressed!" );
+			  },
+			  
+			  onKeyup: function(event) {
+				delete this._pressed[event.keyCode];
+				console.log( String.fromCharCode( event.keyCode ) + " released!" );
+			  }
+			};
+			window.addEventListener('keyup', function(event) { Key.onKeyup(event); }, false);
+			window.addEventListener('keydown', function(event) { Key.onKeydown(event); }, false);
+		}
+		</script>
+	</head>
+	<body>
+		<h1>Click here to give the window focus, then type!</h1>
+		<div id="input-container"></div>
+		<script type="text/javascript" language="javascript">init();</script>
+	</body>
+</html>

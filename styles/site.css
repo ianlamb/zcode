@@ -1,0 +1,44 @@
+p,span,div,body,canvas
+{
+	padding: 0;
+	margin: 0;
+}
+body
+{
+	background: url('../images/scanline.png') repeat;
+	background-color: #454545;
+}
+#z-container
+{
+	
+}
+#z-context
+{
+	min-height: 320px;
+	background-color: #585858;
+}
+#z-canvas
+{
+	background-color: #4d0043;
+}
+#z-status
+{
+	background-color: #888888;
+	padding: 5px;
+}
+#line-prev,#line-prev2,#letters-typed
+{
+	color: #008800;
+}
+#line-curr
+{
+	background: 60% #D8D898;
+}
+#curr-letter
+{
+	background: #ffff00;
+}
+#letters-remaining
+{
+	color: #000000;
+}
