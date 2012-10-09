@@ -13,6 +13,7 @@ var Key = {
 	UP: 38,
 	RIGHT: 39,
 	DOWN: 40,
+	ENTER: 13,
 
 	isDown: function(keyCode) {
 		return this._pressed[keyCode];
@@ -47,6 +48,7 @@ var file = ["this is",
 var	currLineIndex = 0;
 var currLine = file[currLineIndex];
 var currCharIndex = 0;
+var readyForNextLine = false;
 
 var imgMonsterARun = new Image();
 
@@ -141,6 +143,7 @@ function tick() {
 	var lblLettersTyped = document.getElementById("letters-typed");
 	var lblLetterCurr = document.getElementById("curr-letter");
 	var lblLettersRemaining = document.getElementById("letters-remaining");
+	var lblNextLinePrompt = document.getElementById("next-line-prompt");
 	if( file[ currLineIndex ] )
 	{
 		//lblLineCurr.textContent = file[ currLineIndex ];
@@ -153,6 +156,14 @@ function tick() {
 		lblLettersTyped.textContent = "";
 		lblLetterCurr.textContent = "";
 		lblLettersRemaining.textContent = "...";
+	}
+	if( readyForNextLine )
+	{
+		lblNextLinePrompt.textContent = "[ENTER]";
+	}
+	else
+	{
+		lblNextLinePrompt.textContent = "";
 	}
 	var lblLineNext = document.getElementById("line-next");
 	if( file[ currLineIndex + 1 ] )
@@ -173,12 +184,20 @@ function tick() {
 		lblLineNext2.textContent = "...";
 	}
 	
-	if( Key.isDown( currLine.toUpperCase().charCodeAt(currCharIndex) ) )
+	if( readyForNextLine && Key.isDown( Key.ENTER ) )
 	{
-		if( ++currCharIndex > currLine.length - 1 )
+		readyForNextLine = false;
+		currCharIndex = 0;
+		currLine = file[++currLineIndex];
+	}
+	else
+	{
+		if( Key.isDown( currLine.toUpperCase().charCodeAt(currCharIndex) ) )
 		{
-			currCharIndex = 0;
-			currLine = file[++currLineIndex];
+			if( ++currCharIndex > currLine.length - 1 )
+			{
+				readyForNextLine = true;
+			}
 		}
 	}
 

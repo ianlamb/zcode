@@ -26,6 +26,14 @@ body
 	background-color: #888888;
 	padding: 5px;
 }
+#line-prev,#line-prev2,#line-next,#line-next2,#letter-typed,#line-curr,#curr-letter,#next-line-prompt
+{
+	font-size: 14pt;
+}
+#next-line-prompt
+{
+	color: #FFFFFF;
+}
 #line-prev,#line-prev2,#letters-typed
 {
 	color: #008800;
@@ -37,6 +45,7 @@ body
 #curr-letter
 {
 	background: #ffff00;
+	color: #ffc000;
 }
 #letters-remaining
 {
