@@ -85,7 +85,7 @@ function startGame() {
 		// width, height & registration point of each sprite
 		frames: {width: 64, height: 64, regX: 32, regY: 32}, 
 		animations: {	
-			walk: [0, 3, "idle"]
+			walk: [0, 3, true, 10]
 		}
 	});
 	
@@ -93,7 +93,7 @@ function startGame() {
 	bmpAnimation = new createjs.BitmapAnimation(spriteSheet);
 
 	// start playing the first sequence:
-	bmpAnimation.gotoAndPlay("idle"); 	//animate
+	bmpAnimation.gotoAndPlay("walk"); 	//animate
 
 	bmpAnimation.name = "monster1";
 	bmpAnimation.direction = 0;
