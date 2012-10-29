@@ -14,37 +14,40 @@ var Key = {
 	RIGHT: 39,
 	DOWN: 40,
 	ENTER: 13,
+	SHIFT: 16,
 
 	isDown: function(keyCode) {
 		return this._pressed[keyCode];
 	},
 
-	onKeydown: function(event) {
+	onKeypress: function(event) {
 		this._pressed[event.keyCode] = true;
-		console.log( String.fromCharCode( event.keyCode ) + " pressed!" );
+		console.log( String.fromCharCode( event.keyCode ) + " (" + event.keyCode + ") pressed!" );
 	},
 
 	onKeyup: function(event) {
-		delete this._pressed[event.keyCode];
-		console.log( String.fromCharCode( event.keyCode ) + " released!" );
+		this._pressed[event.keyCode] = false;
+		console.log( String.fromCharCode( event.keyCode ) + " (" + event.keyCode + ") released!" );
 	}
 };
 window.addEventListener('keyup', function(event) { Key.onKeyup(event); }, false);
-window.addEventListener('keydown', function(event) { Key.onKeydown(event); }, false);
+window.addEventListener('keypress', function(event) { Key.onKeypress(event); }, false);
 
-var file = ["this is",
-			"some test data",
-			"to help verify",
-			"that everything is working correctly",
-			"looks good to me",
-			"but we need more lines",
-			"so here are some more",
-			"and another",
-			"also we need support for special characters",
-			"just a couple more lines",
-			"third last one",
-			"almost done",
-			"goodbye"];
+var file = ["if(weRock){",
+			"doAwesome();",
+			"}"];
+			
+function getFile(){
+  $.ajax({
+	  url:'main.js',
+	  success: function (data){
+		  file = data;
+	  }
+  });
+}
+getFile();
+
+
 var	currLineIndex = 0;
 var currLine = file[currLineIndex];
 var currCharIndex = 0;
@@ -159,7 +162,7 @@ function tick() {
 	}
 	if( readyForNextLine )
 	{
-		lblNextLinePrompt.textContent = "[ENTER]";
+		lblNextLinePrompt.textContent = " [ENTER]";
 	}
 	else
 	{
@@ -189,15 +192,17 @@ function tick() {
 		readyForNextLine = false;
 		currCharIndex = 0;
 		currLine = file[++currLineIndex];
+		Key._pressed = [];
 	}
 	else
 	{
-		if( Key.isDown( currLine.toUpperCase().charCodeAt(currCharIndex) ) )
+		if( currLine != undefined && Key.isDown( currLine.charCodeAt(currCharIndex) ) )
 		{
 			if( ++currCharIndex > currLine.length - 1 )
 			{
 				readyForNextLine = true;
 			}
+			Key._pressed = [];
 		}
 	}
 

@@ -10,6 +10,7 @@
 		<script src="scripts/modernizr.foundation.js"></script>
 		<script src="scripts/jquery.js"></script>
 		<script src="scripts/foundation.min.js"></script>
+		<script src="scripts/jquery.foundation.navigation.js"></script>
 		<script src="scripts/main.js"></script>
 		
 		<!-- IE Fix for HTML5 Tags -->
@@ -18,24 +19,30 @@
 		<![endif]-->
 	</head>
 	<body>
-		<div class="row">
+		<div id="header" class="row">
 			<div class="twelve columns">
 				<h1>Z-Type</h1>
 			</div>
 		</div>
 		
-		<div class="row">
-			<div class="two columns panel">
-				information / navigation
-			</div>
-			<div class="ten columns" id="z-container">
+		<div id="menu" class="row">
+			<ul class="twelve columns nav-bar">
+				<li><a href="index.html">Index</a></li>
+				<li><a href="aboot.html">About</a></li>
+				<li><a href="http://ianlamb.com">Ian Lamb</a></li>
+				<li><a href="http://dbrown.ca">Derek Brown</a></li>
+			</ul>
+		</div>
+		
+		<div id="content" class="row">
+			<div class="twelve columns" id="z-container">
 				<div class="row">
 					<div class="four columns" id="z-context">
 					asdf<br />
 					asdf
 					</div>
-					<div class="eight columns">
-						<canvas id="z-canvas" width="480px" height="320px">
+					<div class="eight columns" id="z-canvas-wrapper">
+						<canvas id="z-canvas" width="600px" height="400px">
 							Your browser doesn't support canvas. Please download IE9+ on <a href="http://ie.microsoft.com/testdrive">IE Test Drive</a> 
 						</canvas>
 					</div>
@@ -52,16 +59,21 @@
 			</div>
 		</div>
 		
-		<div class="row">
-			<div class="twelve columns panel">
+		<div id="footer" class="row">
+			<div class="six columns">
 				Created by:<br />
 				Derek Brown and Ian Lamb
+			</div>
+			<div class="six columns" style="text-align:right;">
+				This page is only fully supported in Chrome browser.
 			</div>
 		</div>
 		
 		<script type="text/javascript">
 			$(document).ready( function() {
 				init();
+				
+				$(document).foundationNavigation();
 			});
 		</script>
 	</body>

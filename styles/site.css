@@ -8,14 +8,47 @@ body
 	background: url('../images/scanline.png') repeat;
 	background-color: #454545;
 }
+
+#header
+{
+
+}
+#menu
+{
+	
+	background: #ff8300;
+	background: -webkit-gradient(linear, left top, left bottom, from(#ffa010), to(#ef7300)); /* for webkit browsers */
+	background: -moz-linear-gradient(top,  #ffa010,  #ef7300); /* for firefox 3.6+ */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffa010', endColorstr='#ef7300'); /* for IE */
+}
+#content
+{
+	background-color: #cccccc;
+	box-shadow: 0 0 5px #000000;
+}
+#footer
+{
+	padding: 10px;
+	margin-top: 20px;
+	box-shadow: 0 0 5px #000000;
+	background: #ff8300;
+	background: -webkit-gradient(linear, left top, left bottom, from(#ffa010), to(#ef7300)); /* for webkit browsers */
+	background: -moz-linear-gradient(top,  #ffa010,  #ef7300); /* for firefox 3.6+ */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffa010', endColorstr='#ef7300'); /* for IE */
+}
+
 #z-container
 {
 	
 }
 #z-context
 {
-	min-height: 320px;
+	min-height: 400px;
 	background-color: #585858;
+}
+#z-canvas-wrapper
+{
+	background-color: #123;
 }
 #z-canvas
 {
@@ -23,7 +56,6 @@ body
 }
 #z-status
 {
-	background-color: #888888;
 	padding: 5px;
 }
 #line-prev,#line-prev2,#line-next,#line-next2,#letter-typed,#line-curr,#curr-letter,#next-line-prompt
