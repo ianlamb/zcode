@@ -3,14 +3,12 @@
 	<head>
 		<title>Z-Type</title>
 		<link rel="stylesheet" href="styles/foundation.min.css">
-		<link rel="stylesheet" href="styles/app.css">
 		<link rel="stylesheet" href="styles/site.css">
 
 		<script src="http://code.createjs.com/easeljs-0.5.0.min.js"></script>
-		<script src="scripts/modernizr.foundation.js"></script>
 		<script src="scripts/jquery.js"></script>
+		<script src="scripts/modernizr.foundation.js"></script>
 		<script src="scripts/foundation.min.js"></script>
-		<script src="scripts/jquery.foundation.navigation.js"></script>
 		<script src="scripts/main.js"></script>
 		
 		<!-- IE Fix for HTML5 Tags -->
@@ -19,36 +17,24 @@
 		<![endif]-->
 	</head>
 	<body>
-		<div id="header" class="row">
-			<div class="twelve columns">
-				<h1>Z-Type</h1>
-			</div>
-		</div>
-		
-		<div id="menu" class="row">
-			<ul class="twelve columns nav-bar">
-				<li><a href="index.html">Index</a></li>
-				<li><a href="aboot.html">About</a></li>
-				<li><a href="http://ianlamb.com">Ian Lamb</a></li>
-				<li><a href="http://dbrown.ca">Derek Brown</a></li>
-			</ul>
+		<div id="header">
+			<h2 style="float:left;">Z-Type</h2>
+			<p style="float:right;margin: 10px 10px 0;">
+				Created by:<br />
+				<a href="http://dbrown.ca">Derek Brown</a> and <a href="http://ianlamb.com">Ian Lamb</a>
+			</p>
 		</div>
 		
 		<div id="content" class="row">
 			<div class="twelve columns" id="z-container">
-				<div class="row">
-					<div class="four columns" id="z-context">
-					asdf<br />
-					asdf
+				<div id="z-game-wrapper">
+					<div id="z-context">
+						
 					</div>
-					<div class="eight columns" id="z-canvas-wrapper">
-						<canvas id="z-canvas" width="600px" height="400px">
-							Your browser doesn't support canvas. Please download IE9+ on <a href="http://ie.microsoft.com/testdrive">IE Test Drive</a> 
-						</canvas>
-					</div>
-				</div>
-				<div class="row">
-					<div class="twelve columns" id="z-status">
+					<canvas id="z-canvas" width="460px" height="300px">
+						Your browser doesn't support canvas. Please download IE9+ on <a href="http://ie.microsoft.com/testdrive">IE Test Drive</a> 
+					</canvas>
+					<div id="z-status">
 						<p id="line-prev2"><span class="line-number"></span></p>
 						<p id="line-prev"><span class="line-number"></span></p>
 						<p id="line-curr"><span class="line-number"></span><span id="letters-typed"></span><span id="curr-letter"></span><span id="letters-remaining"></span><span id="next-line-prompt"></span></p>
@@ -56,16 +42,6 @@
 						<p id="line-next2"><span class="line-number"></span></p>
 					</div>
 				</div>
-			</div>
-		</div>
-		
-		<div id="footer" class="row">
-			<div class="six columns">
-				Created by:<br />
-				Derek Brown and Ian Lamb
-			</div>
-			<div class="six columns" style="text-align:right;">
-				This page is only fully supported in Chrome browser.
 			</div>
 		</div>
 		
