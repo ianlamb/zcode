@@ -8,6 +8,8 @@ var elapsed = 0.0;
 var enemies = new Array();
 var gameover = false;
 var gamewon = false;
+var lastEnemySpawnMark = 0;
+var enemySpawnDelay = 2;
 
 var CH_DIAM = '\u25C6';
 var CH_BULL = '\u25CF';
@@ -26,7 +28,10 @@ var player = {
 	firepower: 5,
     alive: function(){ return this.shields > 0; },
     x: 230,
-    y: 280
+    y: 280,
+	nextAttackMark: 0,
+	attackDelay: 0.5,
+	attackDamage: 1
 };
 
 var shieldDrain = player.maxShields / 15.0; // should take 15 seconds to drain with no intervention
@@ -44,6 +49,8 @@ var uiGameoverContainer;
 var uiGameoverOverlay;
 var uiGameoverTitle;
 var uiGamoverHint;
+
+var letterShieldBonus = 15;
 
 var Key = {
 	_pressed: [],
@@ -70,7 +77,7 @@ var Key = {
 };
 window.addEventListener('keypress', function(event) { Key.onKeydown(event); }, false);
 
-var SimpleLaser = function( displayObject1, displayObject2, durationSec, offsetX, offsetY )
+var SimpleLaser = function( displayObject1, displayObject2, durationSec, offsetX, offsetY, laserColor )
 {
     //this.__proto__ = new createjs.Shape();
     this.__proto__ = new createjs.Shape();
@@ -79,6 +86,7 @@ var SimpleLaser = function( displayObject1, displayObject2, durationSec, offsetX
     this.life = durationSec;
     this.d0OffsetX = offsetX;
     this.d0OffsetY = offsetY;
+	this.color = laserColor || 0xFF0000;
 
     this.graphics.setStrokeStyle(0.5);
 
@@ -86,7 +94,7 @@ var SimpleLaser = function( displayObject1, displayObject2, durationSec, offsetX
 
     this.updateGraphics = function()
     {
-        this.graphics.clear().setStrokeStyle(2).beginStroke(createjs.Graphics.getRGB(0xFF0000));
+        this.graphics.clear().setStrokeStyle(2).beginStroke(createjs.Graphics.getRGB( this.color ));
         this.graphics.moveTo(this.displayObject1.x + this.d0OffsetX, this.displayObject1.y + this.d0OffsetY);
         this.graphics.lineTo(this.displayObject2.x, this.displayObject2.y);
     };
@@ -97,53 +105,6 @@ var SimpleLaser = function( displayObject1, displayObject2, durationSec, offsetX
         this.updateGraphics();
     };
 }
-
-/*
-var file = ["if(weRock){",
-				"doAwesome();",
-				"}",
-				"this is",
-				"some test data",
-				"to help verify",
-				"that everything is working correctly",
-				"looks good to me",
-				"but we need more lines",
-				"so here are some more",
-				"and another",
-				"<><><><><><><><>",
-				"to help verify",
-				"!-!-!-! Hello World !-!-!-!",
-				"looks good to me",
-				"but we need more lines",
-				"so here are some more",
-				"and another",
-				"<!-- This is a comment -->",
-				"to help verify",
-				"that everything is working correctly",
-				"looks good to me",
-				"but we need more lines",
-				"so here are some more",
-				"and another",
-				"also we need support for special characters",
-				"to help verify",
-				"that everything is working correctly",
-				"looks good to me",
-				"but we need more lines",
-				"so here are some more",
-				"and another",
-				"also we need support for special characters",
-				"to help verify",
-				"that everything is working correctly",
-				"looks good to me",
-				"but we need more lines",
-				"so here are some more",
-				"and another",
-				"also we need support for special characters",
-				"just a couple more lines",
-				"third last one",
-				"almost done",
-				"goodbye"];
-*/
 
 // load a file into the game
 var file;			
@@ -156,8 +117,8 @@ $.ajax({
 		lines = data.split('\n');
 		for(var i = 0; i < lines.length; i++)
 		{
-			// filter any crap out of the file here
-			lines[i].replace(/^\s+|\s+$/g,'');
+			if( lines[i] != '\r' )
+				lines[i] = lines[i].substr( 0, lines[i].length - 1 );
 		}
 		file = lines;
 	},
@@ -175,6 +136,9 @@ var readyForNextLine = false;
 var imgMonsterARun = new Image();
 var imgEnemy01 = new Image();
 var imagesToLoad = 0;
+
+var gfxEnemy01;
+var nEnemies = 5;
 
 function init() 
 {
@@ -209,6 +173,8 @@ function handleImageError(e)
 
 function startGame() 
 {
+	createjs.SoundJS.checkPlugin( true ); // initialize soundjs
+
 	// create a new stage and point it at our canvas:
 	stage = new createjs.Stage(canvas);
 	// grab canvas width and height for later calculations:
@@ -241,7 +207,7 @@ function startGame()
 	stage.addChild(uiShields.fg);
 
     // setup basic enemies
-    var gfxEnemy01 = new createjs.SpriteSheet(
+    gfxEnemy01 = new createjs.SpriteSheet(
     {
         images: [imgEnemy01],
         frames: { width: 64, height: 64, regX: 32, regY: 32 },
@@ -252,17 +218,12 @@ function startGame()
             attack2: { frames: [2,2], frequency: 30, next: 'idle' }
         }   
     });
-    var nEnemies = 5;
+    nEnemies = 5;
     for( var i = 0; i < nEnemies; ++i )
     {
-        var newEnemy = new createjs.BitmapAnimation(gfxEnemy01);
-        //newEnemy.health = 0;
-        newEnemy.baseX = 100 + i * ( ( (screen_width - 200 ) + 100 ) / nEnemies ) + Math.random()*-20 + 10;
-        newEnemy.baseY = Math.random()*20 + 30;
-        newEnemy.animOffset = Math.floor( Math.random() * 10 ) * 10;
-        newEnemy.gotoAndPlay( "idle" );
-        newEnemy.nextAttackMark = Math.round(Math.random()*5);
-        enemies.push( newEnemy );
+		var newEnemy = createEnemy( i );
+        newEnemy.nextAttackMark = i + 5;
+        enemies[ i ] = newEnemy;
         stage.addChild( newEnemy );
     }
 
@@ -303,6 +264,80 @@ function startGame()
 	}
 }
 
+function getNumEnemies()
+{
+	var nEnemiesAlive = 0;
+	for( var i = 0; i < enemies.length; ++i )
+	{
+		if( enemies[i] != null )
+			nEnemiesAlive++;
+	}
+	return nEnemiesAlive;
+}
+
+function getEmptyEnemyIndex()
+{
+	for( var i = 0; i < enemies.length; ++i )
+	{
+		if( enemies[i] == null )
+			return i;
+	}
+	return -1;
+}
+
+function getRandomEnemy()
+{
+	var validEnemies = new Array();
+	for( var i = 0; i < enemies.length; ++i )
+	{
+		if( enemies[i] != null )
+			validEnemies.push( enemies[i] );
+	}
+	
+	if( validEnemies.length > 0 )
+		return validEnemies[ Math.floor( Math.random() * validEnemies.length ) ];
+	else
+		return null;
+}
+
+function createEnemy( slot )
+{
+	var pos = slot || 0;
+	var newEnemy = new createjs.BitmapAnimation(gfxEnemy01);
+	newEnemy.health = 3;
+	newEnemy.baseX = 100 + pos * ( ( (screen_width - 200 ) + 100 ) / nEnemies ) + Math.random()*-20 + 10;
+	newEnemy.baseY = Math.random()*20 + 30;
+	newEnemy.animOffset = Math.floor( Math.random() * 10 ) * 10;
+	newEnemy.gotoAndPlay( "idle" );
+	newEnemy.nextAttackMark = elapsed + pos;
+	newEnemy.attackDamage = 60;
+	newEnemy.hurt = function( damage )
+	{
+		this.health--;
+		if( this.health <= 0 )
+			this.visible = false;
+	};
+	newEnemy.isAlive = function()
+	{
+		return this.health > 0;
+	}
+	return newEnemy;
+}
+
+function repopulateEnemies()
+{
+	var enemyIndex = 0;
+	if( elapsed - lastEnemySpawnMark > enemySpawnDelay 
+		&& getNumEnemies() < nEnemies 
+		&& (enemyIndex = getEmptyEnemyIndex()) != -1 )
+	{
+		lastEnemySpawnMark = elapsed;
+		var newEnemy = createEnemy( enemyIndex );
+        enemies[ enemyIndex ] = newEnemy;
+        stage.addChild( newEnemy );
+	}
+}
+
 function tick( delta, paused ) 
 {
     delta/=1000; // delta comes in as milliseconds, convert to seconds
@@ -314,11 +349,16 @@ function tick( delta, paused )
     {
 	    elapsed += delta;
 
-        // update ui
+		// UPDATE UI
         uiShields.fg.scaleX = ( player.shields / player.maxShields * 1.0 );
 	    updateKeyboardUI();
 
-        // check keyboard input
+		// KEYBOARD STUFF
+		if( currLine == '\r' ) // special case for "empty" lines
+			readyForNextLine = true;
+		// if waiting for enter, and player has pressed enter
+		//		- move to the next line
+		// 		- award some shields
 	    if (readyForNextLine && Key.isDown(Key.ENTER)) {
             player.shields += file[currLineIndex].length / 10 * 200 + 200;
 	        readyForNextLine = false;
@@ -331,35 +371,57 @@ function tick( delta, paused )
             }
 	    }
 	    else {
+			// if the player hit the current character
+			//		- give a little shield bonus
+			//		- move to the next character, unless it's on the next line, in which case we look for the enter key next time around
 	        if (Key.isDown(currLine.charCodeAt(currCharIndex))) {
+				player.shields += letterShieldBonus;
 	            if (++currCharIndex > currLine.length - 1) {
 	                readyForNextLine = true;
 	            }
 	        }
 	    }
+		
+		repopulateEnemies();
 
-        // drain player health constantly
-        player.shields -= shieldDrain * delta;
-        if( player.shields > player.maxShields ){ player.shields = player.maxShields; }
-        if( player.shields < 0 ){ player.shields = 0; }
-
+		// UPDATE ENEMIES
         for( var i = 0; i < enemies.length; ++i )
         {
             var e = enemies[i];
-            e.y = e.baseY + Math.sin(elapsed * 2.0 + e.animOffset) * 15.0;
-            e.x = e.baseX + Math.sin(elapsed + e.animOffset) * 28.0;
+			if( e && e.isAlive() )
+			{
+				e.y = e.baseY + Math.sin(elapsed * 2.0 + e.animOffset) * 15.0;
+				e.x = e.baseX + Math.sin(elapsed + e.animOffset) * 28.0;
 
-            if( elapsed > e.nextAttackMark )
-            {
-                e.nextAttackMark = elapsed + 3;
-                var anim = Math.round(Math.random());
-                e.gotoAndPlay( anim ? "attack1" : "attack2" );
-                var laser = new SimpleLaser( e, player, 1, anim == 0 ? 9 : -9, 9 );
-                stage.addChild( laser );
-                lasers.push( laser );
-            }
+				if( elapsed > e.nextAttackMark )
+				{
+					e.nextAttackMark = elapsed + 5;
+					var anim = Math.round(Math.random());
+					e.gotoAndPlay( anim ? "attack1" : "attack2" );
+					var laser = new SimpleLaser( e, player, 1, anim == 0 ? 9 : -9, 9 );
+					stage.addChild( laser );
+					lasers.push( laser );
+					
+					var a = createjs.SoundJS.play( "sounds/Laser_Shoot2.ogg", createjs.SoundJS.INTERRUPT_ANY , 0, 0, 0, 1, 0 );
+					console.log( a );
+					//a.playState == createjs.SoundJS.PLAY_FINISHED
+					//a.play();
+					//console.log( a );
+					
+					player.shields -= e.attackDamage;
+				}
+			}
+			else
+			{
+				stage.removeChild( e );
+				//e = null;
+				enemies[i] = null;
+				//stage.removeChild( e );
+				//enemies.splice( i--, 1 );
+			}
         }
 
+		// UPDATE LASERS
         for( var i = 0; i < lasers.length; ++i )
         {
             if( !lasers[i].alive() )
@@ -368,6 +430,25 @@ function tick( delta, paused )
                 lasers.splice( i--, 1 );
             }
         }
+		
+		if( elapsed > player.nextAttackMark )
+		{
+			player.nextAttackMark = elapsed + player.attackDelay;
+			var enemy = getRandomEnemy();
+			if( enemy && enemy.isAlive() )
+			{
+				enemy.hurt( player.attackDamage );
+				
+				var laser = new SimpleLaser( player, enemy, 0.25, 0, 0, 0x00FF00 );
+				stage.addChild( laser );
+				lasers.push( laser );
+			}
+		}
+		
+
+		// SHIELD VALUE CLAMPING
+        if( player.shields > player.maxShields ){ player.shields = player.maxShields; }
+        if( player.shields < 0 ){ player.shields = 0; }
 
         gameover = !player.alive();
         if( gameover )
@@ -401,7 +482,10 @@ function updateKeyboardUI()
     // update prev2 line display
     var lblLinePrev2 = document.getElementById("line-prev2");
     if (file[currLineIndex - 2]) {
-        lblLinePrev2.textContent = file[currLineIndex - 2];
+		if( file[currLineIndex - 2] == '\r' )
+			lblLinePrev2.textContent = '\u00A0';
+		else
+			lblLinePrev2.textContent = file[currLineIndex - 2];
     }
     else {
         lblLinePrev2.textContent = "...";
@@ -410,7 +494,10 @@ function updateKeyboardUI()
     // update prev line display
     var lblLinePrev = document.getElementById("line-prev");
     if (file[currLineIndex - 1]) {
-        lblLinePrev.textContent = file[currLineIndex - 1];
+		if( file[currLineIndex - 1] == '\r' )
+			lblLinePrev.textContent = '\u00A0';
+		else
+			lblLinePrev.textContent = file[currLineIndex - 1];
     }
     else {
         lblLinePrev.textContent = "...";
@@ -440,7 +527,10 @@ function updateKeyboardUI()
     // update next line display
     var lblLineNext = document.getElementById("line-next");
     if (file[currLineIndex + 1]) {
-        lblLineNext.textContent = file[currLineIndex + 1];
+		if( file[currLineIndex + 1] == '\r' )
+			lblLineNext.textContent = '\u00A0';
+		else
+			lblLineNext.textContent = file[currLineIndex + 1];
     }
     else {
         lblLineNext.textContent = "...";
@@ -449,7 +539,10 @@ function updateKeyboardUI()
     // update next2 line display
     var lblLineNext2 = document.getElementById("line-next2");
     if (file[currLineIndex + 2]) {
-        lblLineNext2.textContent = file[currLineIndex + 2];
+		if( file[currLineIndex + 2] == '\r' )
+			lblLineNext2.textContent = '\u00A0';
+		else
+			lblLineNext2.textContent = file[currLineIndex + 2];
     }
     else {
         lblLineNext2.textContent = "...";
