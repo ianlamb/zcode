@@ -71,7 +71,7 @@ a:hover
 	clear: both;
 	margin: -2px 0;
 	text-shadow: 0 0 10px #ff1100;
-	background: white;
+	background: #666666;
 }
 .context-next
 {
@@ -150,4 +150,79 @@ a:hover
 	display: block;
 	text-align: right;
 	width: 20px;
+}
+
+#show-levels
+{
+	width: 300px;
+	left: 50%;
+	margin: 20px 0 0 -150px;
+}
+#pick-level
+{
+	width: 200px;
+	left: 50%;
+	margin: 20px 0 0 -100px;
+}
+#levels-menu
+{
+	z-index: 80;
+	display: none;
+	position: absolute;
+	box-sizing: border-box;
+	padding: 10px;
+	width: 600px;
+	height: 400px;
+	top: 0;
+	left: 50%;
+	margin-left: -300px;
+	border-radius: 0 0 5px 5px;
+	box-shadow: 0 1px 5px #222222;
+	background: #757575;
+}
+#levels-menu #weapons a, #weapons h2
+{
+	color: #d63600;
+	text-shadow: 0 1px 1px #454545;
+}
+#levels-menu #shields a, #shields h2
+{
+	color: #3399ff;
+	text-shadow: 0 1px 1px #454545;
+}
+#levels-menu #skill a, #skill h2
+{
+	color: #22cc44;
+	text-shadow: 0 1px 1px #454545;
+}
+.levels-option
+{
+	display: block;
+	padding: 10px;
+	border-radius: 5px 5px 5px 5px;
+	transition: all .2s;
+}
+a.levels-option:hover
+{
+	color: #ffffff !important;
+	text-shadow: 0 0 3px #ffffff !important;
+	transition: all .2s;
+}
+a.levels-selected
+{
+	background: #454545;
+	box-shadow: 1px 1px 3px #222222;
+}
+
+#page-fade
+{
+	z-index: 50;
+	display: none;
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	opacity: 0.75;
+	background: black;
 }

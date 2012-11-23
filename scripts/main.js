@@ -10,6 +10,9 @@ var gameover = false;
 var gamewon = false;
 var lastEnemySpawnMark = 0;
 var enemySpawnDelay = 2;
+var file;
+var completedLevelURLs = new Array();
+var selectedLevelURL = "";
 
 var CH_DIAM = '\u25C6';
 var CH_BULL = '\u25CF';
@@ -106,30 +109,8 @@ var SimpleLaser = function( displayObject1, displayObject2, durationSec, offsetX
     };
 }
 
-// load a file into the game
-var file;			
-$.ajax({
-	type: "GET",
-	dataType: "text",
-	url: "scripts/main.js",
-	async: false,
-	success: function(data){
-		lines = data.split('\n');
-		for(var i = 0; i < lines.length; i++)
-		{
-			if( lines[i] != '\r' )
-				lines[i] = lines[i].substr( 0, lines[i].length - 1 );
-		}
-		file = lines;
-	},
-	error: function(jqXHR, textStatus, errorThrown){
-		file = [textStatus,
-				errorThrown];
-	}
-});
-
 var	currLineIndex = 0;
-var currLine = file[currLineIndex];
+var currLine = 0;
 var currCharIndex = 0;
 var readyForNextLine = false;
 
@@ -140,6 +121,35 @@ var imagesToLoad = 0;
 var gfxEnemy01;
 var nEnemies = 5;
 
+// load a code file and start the game	
+function loadGameFile(fileURL)
+{		
+	$.ajax({
+		type: "GET",
+		dataType: "text",
+		url: fileURL,
+		async: false,
+		success: function(data){
+			lines = data.split('\n');
+			for(var i = 0; i < lines.length; i++)
+			{
+				if( lines[i] != '\r' )
+					lines[i] = lines[i].substr( 0, lines[i].length - 1 );
+			}
+			file = lines;
+			currLine = file[currLineIndex];
+			$('#page-fade').fadeOut(300);
+			$('#levels-menu').slideUp(500);
+			startGame();
+		},
+		error: function(jqXHR, textStatus, errorThrown){
+			file = [textStatus,
+					errorThrown];
+		}
+	});
+}
+
+// Initialize
 function init() 
 {
 	canvas = document.getElementById("z-canvas");
@@ -148,6 +158,31 @@ function init()
     imgEnemy01.onload = handleImageLoad;
     imgEnemy01.onerror = handleImageError;
     imgEnemy01.src = "images/enemy01.png";
+	
+
+	// Level selection
+	$('#page-fade').fadeIn(300);
+	$('#levels-menu').slideDown(500);
+	
+	$('#show-levels').bind('click', function() {
+		$('#page-fade').fadeIn(300);
+		$('#levels-menu').slideDown(500);
+	});
+	$('#page-fade').bind('click', function() {
+		$('#page-fade').fadeOut(300);
+		$('#levels-menu').slideUp(500);
+	});
+	$('.levels-option').bind('click', function(e) {
+		$('.levels-selected').removeClass('levels-selected');
+		$(this).addClass('levels-selected');
+		if(selectedLevelURL == "")
+			$('#pick-level').fadeIn();
+		selectedLevelURL = $(this).attr('href');
+		return false;
+	});
+	$('#pick-level').bind('click', function() {
+		loadGameFile(selectedLevelURL);
+	});
 }
 
 function reset() 
@@ -161,7 +196,7 @@ function handleImageLoad(e)
 {
     if( --imagesToLoad == 0 )
     {
-    	startGame();
+    	//startGame();
     }
 }
 
