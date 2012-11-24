@@ -57,6 +57,7 @@ a:hover
 	letter-spacing: 1px;
 	color: #ff1100;
 	border-right: 1px solid #ff1100;
+	overflow: hidden;
 }
 .context-prev
 {
@@ -152,14 +153,19 @@ a:hover
 	width: 20px;
 }
 
-#show-levels
+.z-menu-item
 {
+	display: block;
 	width: 300px;
 	left: 50%;
-	margin: 20px 0 0 -150px;
+	margin: 10px 0 0 -150px;
 }
+
 #pick-level
 {
+	clear: both;
+	display: relative;
+	bottom: 20px;
 	width: 200px;
 	left: 50%;
 	margin: 20px 0 0 -100px;
@@ -171,32 +177,40 @@ a:hover
 	position: absolute;
 	box-sizing: border-box;
 	padding: 10px;
-	width: 600px;
-	height: 400px;
+	width: 660px;
 	top: 0;
 	left: 50%;
-	margin-left: -300px;
+	margin-left: -330px;
 	border-radius: 0 0 5px 5px;
 	box-shadow: 0 1px 5px #222222;
 	background: #757575;
 }
-#levels-menu #weapons a, #weapons h2
+#levels-menu img
 {
-	color: #d63600;
+	width: 40px;
+	height: 40px;
+	float: left;
+	margin: -5px 10px 0 0;
+}
+#levels-menu #weapons a, #weapons h3
+{
+	color: #C60F10;
 	text-shadow: 0 1px 1px #454545;
 }
-#levels-menu #shields a, #shields h2
+#levels-menu #shields a, #shields h3
 {
 	color: #3399ff;
 	text-shadow: 0 1px 1px #454545;
 }
-#levels-menu #skill a, #skill h2
+#levels-menu #skill a, #skill h3
 {
 	color: #22cc44;
 	text-shadow: 0 1px 1px #454545;
 }
 .levels-option
 {
+	font-size: 12pt;
+	font-weight: bold;
 	display: block;
 	padding: 10px;
 	border-radius: 5px 5px 5px 5px;
@@ -212,6 +226,18 @@ a.levels-selected
 {
 	background: #454545;
 	box-shadow: 1px 1px 3px #222222;
+}
+a.levels-selected:hover
+{
+	color: #cccccc !important;
+	text-shadow: inherit !important;
+	transition: all .2s;
+}
+div.levels-option-reward
+{
+	margin-top: 4px;
+	font-size: 7pt;
+	font-weight: normal;
 }
 
 #page-fade
