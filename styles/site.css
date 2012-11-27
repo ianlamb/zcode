@@ -90,6 +90,8 @@ a:hover
 	border: 1px solid #ff1100;
 	border-radius: 10px 10px 10px 10px;
 	box-shadow: 0 0 10px #000000;
+	background-color: #212121;
+	background: url("../images/twinkle_twinkle.png");
 }
 #z-canvas
 {
@@ -183,7 +185,7 @@ a:hover
 	margin-left: -330px;
 	border-radius: 0 0 5px 5px;
 	box-shadow: 0 1px 5px #222222;
-	background: #757575;
+	background: #202020;
 }
 #levels-menu img
 {
@@ -215,6 +217,17 @@ a:hover
 	padding: 10px;
 	border-radius: 5px 5px 5px 5px;
 	transition: all .2s;
+}
+.levels-option.completed
+{
+	background: #11ee44;
+	box-shadow: 1px 1px 3px #222222;
+}
+.levels-option.locked
+{
+	color: #454545;
+	background: #000000;
+	box-shadow: 1px 1px 3px #222222;
 }
 a.levels-option:hover
 {
