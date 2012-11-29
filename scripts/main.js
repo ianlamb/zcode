@@ -55,7 +55,18 @@ weaponLevels[1] = { url:"operators.js", completed:false, locked:false };
 weaponLevels[2] = { url:"comparisons.js", completed:false, locked:true };
 weaponLevels[3] = { url:"loops.js", completed:false, locked:true };
 weaponLevels[4] = { url:"functions.js", completed:false, locked:true };
+var shieldLevels = new Array();
+shieldLevels[0] = { url:"conditions.js", completed:false, locked:false };
+shieldLevels[1] = { url:"errors.js", completed:false, locked:true };
+shieldLevels[2] = { url:"validation.js", completed:false, locked:true };
+shieldLevels[3] = { url:"regex.js", completed:false, locked:true };
+var skillLevels = new Array();
+skillLevels[0] = { url:"objects.js", completed:false, locked:false };
+skillLevels[1] = { url:"events.js", completed:false, locked:true };
+skillLevels[2] = { url:"closures.js", completed:false, locked:true };
 $.jStorage.set('weaponLevels', weaponLevels);
+$.jStorage.set('shieldLevels', shieldLevels);
+$.jStorage.set('skillLevels', skillLevels);
 
 var shieldDrain = player.maxShields / 15.0; // should take 15 seconds to drain with no intervention
 
@@ -211,6 +222,45 @@ function showLevelsMenu()
 			});
 		}
 	}
+	
+	for(var i = 0; i < $.jStorage.get('shieldLevels').length; i++)
+	{
+		var currLevel = $.jStorage.get('shieldLevels')[i];
+		if(currLevel.completed)
+		{
+			$('.levels-option').each(function() {
+				if( $(this).attr('href') == 'levels/' + currLevel.url )
+					$(this).addClass('completed');
+			});
+		}
+		else if(currLevel.locked)
+		{
+			$('.levels-option').each(function() {
+				if( $(this).attr('href') == 'levels/' + currLevel.url )
+					$(this).addClass('locked');
+			});
+		}
+	}
+	
+	for(var i = 0; i < $.jStorage.get('skillLevels').length; i++)
+	{
+		var currLevel = $.jStorage.get('skillLevels')[i];
+		if(currLevel.completed)
+		{
+			$('.levels-option').each(function() {
+				if( $(this).attr('href') == 'levels/' + currLevel.url )
+					$(this).addClass('completed');
+			});
+		}
+		else if(currLevel.locked)
+		{
+			$('.levels-option').each(function() {
+				if( $(this).attr('href') == 'levels/' + currLevel.url )
+					$(this).addClass('locked');
+			});
+		}
+	}
+	
 	$('#page-fade').fadeIn(300);
 	$('#levels-menu').slideDown(500);
 }
@@ -329,6 +379,7 @@ function handleFileError(o) {
 
 function startGame() 
 {
+	var SND_MUSIC = {src:"sounds/music.ogg", id:"SND_MUSIC"};
 	var SND_LASER_SHOOT = {src:"sounds/Laser_Shoot2.ogg", id:"SND_LASER_SHOOT"};
 	var SND_ENEMY_EXPLODE = {src:"sounds/enemyExplode.ogg", id:"SND_ENEMY_EXPLODE"};
 	var SND_PLAYER_HURT = {src:"sounds/playerDamage.ogg", id:"SND_PLAYER_HURT"};
@@ -339,6 +390,7 @@ function startGame()
 	//preloader.onComplete = loadComplete;
 	preloader.onFileError = handleFileError;
 	//preloader.onProgress = handleProgress;
+	preloader.loadFile(SND_MUSIC, true);
 	preloader.loadFile(SND_LASER_SHOOT, true);
 	preloader.loadFile(SND_ENEMY_EXPLODE, true);
 	preloader.loadFile(SND_PLAYER_LASER, true);
@@ -484,6 +536,9 @@ function startGame()
 	for(var i = 1; i < 20; i++) {
 		$('#z-context').append('<p id="line-'+i+'" class="context-next"><span class="line-number">'+(i+1)+':</span>'+file[i].substr(0,29)+'</p>');
 	}
+	
+	// start music
+	sm.play( "SND_MUSIC", createjs.SoundJS.INTERRUPT_NONE , 0, 19000, 0, 1.0, 0 );
 }
 
 function getNumEnemies()

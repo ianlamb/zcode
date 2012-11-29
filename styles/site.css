@@ -218,15 +218,16 @@ a:hover
 	border-radius: 5px 5px 5px 5px;
 	transition: all .2s;
 }
-.levels-option.completed
+a.levels-option.completed
 {
-	background: #11ee44;
+	color: #ffffff !important;
+	background: url('../images/check-icon.png') no-repeat right;
 	box-shadow: 1px 1px 3px #222222;
 }
-.levels-option.locked
+a.levels-option.locked
 {
-	color: #454545;
-	background: #000000;
+	color: #454545 !important;
+	background: url('../images/lock-icon.png') no-repeat right;
 	box-shadow: 1px 1px 3px #222222;
 }
 a.levels-option:hover
