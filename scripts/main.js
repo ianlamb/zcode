@@ -675,6 +675,47 @@ function getNextActiveMember( pool )
 	}
 }
 
+function pewPewLasers()
+{
+	for( var i = 0; i < player.nActiveLasers; ++i )
+	{
+		var laserPosition = getRandomLaserPosition();
+		if( laserPosition )
+		{
+			laserPosition.used = true;
+
+			var enemy = getRandomEnemy();
+			if( enemy && enemy.isAlive() )
+			{
+				enemy.hurt( player.attackDamage );
+				
+				var laser = new SimpleLaser( laserPosition, enemy, 0.25, 0, 0, 0x00FF00 );
+				stage.addChild( laser );
+				lasers.push( laser );
+
+				var expld = getNextActiveMember( greenExplodies );
+				if( expld )
+				{
+					expld.activate();
+					expld.killMark = elapsed + 0.45;
+					expld.x = enemy.x;
+					expld.y = enemy.y;
+					expld.gotoAndPlay("idle");
+				}
+
+				sm.play( "SND_PLAYER_LASER", createjs.SoundJS.INTERRUPT_NONE , 0, 0, 0, 0.333, 0 );
+			}
+		}
+	}
+	for( var i = 0; i < laserPositions.length; ++i )
+	{
+		if( laserPositions[i] )
+		{
+			laserPositions[i].used = false;
+		}
+	}
+}
+
 function tick( delta, paused ) 
 {
     delta/=1000; // delta comes in as milliseconds, convert to seconds
@@ -720,6 +761,7 @@ function tick( delta, paused )
 	            if (++currCharIndex > currLine.length - 2) { // change to -2 because we're jamming a \n onto the end of each line
 	                readyForNextLine = true;
 	            }
+				pewPewLasers();
 	        }
 	    }
 		
@@ -838,6 +880,7 @@ function tick( delta, paused )
         	}
         }
 		
+		/*
 		// PLAYER SHIP ATTACK LOGIC
 		if( elapsed > player.nextAttackMark )
 		{
@@ -880,6 +923,7 @@ function tick( delta, paused )
 				}
 			}
 		}
+		*/
 		
 
 		// SHIELD VALUE CLAMPING
