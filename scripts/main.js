@@ -40,8 +40,12 @@ var player = {
 	attackDelay: 0.5,
 	attackDamage: 1,
 	gfx: null,
-	nActiveLasers: 1
+	nActiveLasers: 1,
+	score: 0,
+	displayScore: 0
 };
+
+var lblScore;
 
 var laserPositions = new Array();
 laserPositions[0] = { x:80, y:255, used:false };
@@ -537,8 +541,24 @@ function startGame()
 		$('#z-context').append('<p id="line-'+i+'" class="context-next"><span class="line-number">'+(i+1)+':</span>'+file[i].substr(0,29)+'</p>');
 	}
 	
+	lblScore = new createjs.Text( "0000000", "bold 30px Iceland, Arial", "#FFFFFF" );
+	lblScore.textAlign = "center";
+	lblScore.x = screen_width * 0.5;
+	lblScore.y = screen_height - 65;
+	stage.addChild( lblScore );
+	
 	// start music
 	sm.play( "SND_MUSIC", createjs.SoundJS.INTERRUPT_NONE , 0, 19000, 0, 1.0, 0 );
+}
+
+function setScoreDisplay( value )
+{
+	var valueAsString = ""+value;
+	while( valueAsString.length < 6 )
+	{
+		valueAsString = "0" + valueAsString;
+	}
+	lblScore.text = valueAsString;
 }
 
 function getNumEnemies()
@@ -587,7 +607,7 @@ function createEnemy( slot )
 	newEnemy.animOffset = Math.floor( Math.random() * 10 ) * 10;
 	newEnemy.gotoAndPlay( "idle" );
 	newEnemy.nextAttackMark = elapsed + pos;
-	newEnemy.attackDamage = 60;
+	newEnemy.attackDamage = 99;
 	newEnemy.hurt = function( damage )
 	{
 		this.health--;
@@ -762,6 +782,7 @@ function tick( delta, paused )
 	                readyForNextLine = true;
 	            }
 				pewPewLasers();
+				player.score+=5;
 	        }
 	    }
 		
@@ -791,12 +812,6 @@ function tick( delta, paused )
 						var laser = new SimpleLaser( e, attackPos, 0.25, anim == 0 ? 9 : -9, 9 );
 						stage.addChild( laser );
 						lasers.push( laser );
-
-						/*
-						var explody = createExplody( attackPos.x, attackPos.y, 0.25 );
-						stage.addChild( explody );
-						explodies.push( explody );
-						*/
 
 						var expld = getNextActiveMember( smallExplodies );
 						if( expld )
@@ -830,6 +845,8 @@ function tick( delta, paused )
 
 					stage.removeChild( e );
 					enemies[i] = null;
+					
+					player.score += Math.round(Math.random()*20) + 100;
 				}
 			}
         }
@@ -881,10 +898,23 @@ function tick( delta, paused )
         		greenExplodies[i].deactivate();
         	}
         }
+		
+		if( player.displayScore != player.score )
+		{
+			var deltaScore = player.score - player.displayScore;
+			var change = Math.round( deltaScore * 0.99 * delta * 4 );
+			player.displayScore += Math.abs( change ) >= 1 ? change : 1;
+			if( player.displayScore > player.score )
+			{
+				player.displayScore = player.score;
+			}
+		}
 
 		// SHIELD VALUE CLAMPING
         if( player.shields > player.maxShields ){ player.shields = player.maxShields; }
         if( player.shields < 0 ){ player.shields = 0; }
+		
+		setScoreDisplay( player.displayScore );
 
         gameover = !player.alive();
         if( gameover )
