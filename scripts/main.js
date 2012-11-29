@@ -703,7 +703,7 @@ function pewPewLasers()
 					expld.gotoAndPlay("idle");
 				}
 
-				sm.play( "SND_PLAYER_LASER", createjs.SoundJS.INTERRUPT_NONE , 0, 0, 0, 0.333, 0 );
+				sm.play( "SND_PLAYER_LASER", createjs.SoundJS.INTERRUPT_NONE , 0, 0, 0, 0.35, 0 );
 			}
 		}
 	}
@@ -825,6 +825,8 @@ function tick( delta, paused )
 						be.y = e.y;
 						be.gotoAndPlay("idle");
 					}
+					
+					sm.play( "SND_ENEMY_EXPLODE", createjs.SoundJS.INTERRUPT_NONE , 0, 0, 0, 1, 0 );
 
 					stage.removeChild( e );
 					enemies[i] = null;
@@ -832,6 +834,7 @@ function tick( delta, paused )
 			}
         }
 
+		
 		// UPDATE LASERS
         for( var i = 0; i < lasers.length; ++i )
         {
@@ -876,55 +879,8 @@ function tick( delta, paused )
         	if( greenExplodies[i].active && elapsed > greenExplodies[i].killMark )
         	{
         		greenExplodies[i].deactivate();
-        		sm.play( "SND_ENEMY_EXPLODE", createjs.SoundJS.INTERRUPT_NONE , 0, 0, 0, 1, 0 );
         	}
         }
-		
-		/*
-		// PLAYER SHIP ATTACK LOGIC
-		if( elapsed > player.nextAttackMark )
-		{
-			player.nextAttackMark = elapsed + player.attackDelay;
-			for( var i = 0; i < player.nActiveLasers; ++i )
-			{
-				var laserPosition = getRandomLaserPosition();
-				if( laserPosition )
-				{
-					laserPosition.used = true;
-
-					var enemy = getRandomEnemy();
-					if( enemy && enemy.isAlive() )
-					{
-						enemy.hurt( player.attackDamage );
-						
-						var laser = new SimpleLaser( laserPosition, enemy, 0.25, 0, 0, 0x00FF00 );
-						stage.addChild( laser );
-						lasers.push( laser );
-
-						var expld = getNextActiveMember( greenExplodies );
-						if( expld )
-						{
-							expld.activate();
-							expld.killMark = elapsed + 0.45;
-							expld.x = enemy.x;
-							expld.y = enemy.y;
-							expld.gotoAndPlay("idle");
-						}
-
-						sm.play( "SND_PLAYER_LASER", createjs.SoundJS.INTERRUPT_NONE , 0, 0, 0, 0.333, 0 );
-					}
-				}
-			}
-			for( var i = 0; i < laserPositions.length; ++i )
-			{
-				if( laserPositions[i] )
-				{
-					laserPositions[i].used = false;
-				}
-			}
-		}
-		*/
-		
 
 		// SHIELD VALUE CLAMPING
         if( player.shields > player.maxShields ){ player.shields = player.maxShields; }
