@@ -1,22 +1,17 @@
-//for loop
-for(var i = 0; i < cars.length; i++) { 
-document.write(cars[i] + "<br>");
+for(var i = 0; i < cars.length; i++){
+alert(cars[i]);
 }
 
-//for/in loop
-var person={fname:"John", lname:"Doe", age:25}; 
-for(x in person) {
-txt=txt + person[x];
+for(x in person){
+txt += person[x];
 }
 
-//while loop
-while(i < 5) {
-x=x + "The number is " + i + "<br>";
+while(i < 5){
+x += i;
 i++;
 }
 
-//do while loop
-do {
-x = x + "The number is " + i + "<br>";
+do{
+x += i;
 i++;
-} while(i<5);
+}while(i < 5);

@@ -1,8 +1,5 @@
-var pi=3.14; //double
-var name="John Doe"; //string
-var answer='Yes I am!'; //string
-
-//DOM example
-<p id="demo"></p>
-var carname="Volvo";
-document.getElementById("demo").innerHTML=carname;
+var number = 3.14;
+var text = "John Doe";
+var func = function(){};
+var object = {};
+var array = new Array();

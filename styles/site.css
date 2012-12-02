@@ -165,12 +165,15 @@ a:hover
 
 #pick-level
 {
-	clear: both;
-	display: relative;
-	bottom: 20px;
-	width: 200px;
-	left: 50%;
-	margin: 20px 0 0 -100px;
+	float: left;
+	margin: 20px;
+	width: 40%;
+}
+#reset-levels
+{
+	float: right;
+	margin: 20px;
+	width: 40%;
 }
 #levels-menu
 {

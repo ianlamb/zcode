@@ -29,6 +29,8 @@ var lasers = new Array();
 
 var preloader;
 
+var gamePaused = true;
+
 var player = {
 	maxShields: 1000,
 	shields: 1000,
@@ -46,6 +48,7 @@ var player = {
 };
 
 var lblScore;
+lblScore = new createjs.Text( "0000000", "bold 30px Iceland, Arial", "#FFFFFF" );
 
 var laserPositions = new Array();
 laserPositions[0] = { x:80, y:255, used:false };
@@ -53,24 +56,22 @@ laserPositions[1] = { x:380, y:255, used:false };
 laserPositions[2] = { x:102, y:218, used:false };
 laserPositions[3] = { x:361, y:218, used:false };
 
-var weaponLevels = new Array();
-weaponLevels[0] = { url:"variables.js", completed:true, locked:false };
-weaponLevels[1] = { url:"operators.js", completed:false, locked:false };
-weaponLevels[2] = { url:"comparisons.js", completed:false, locked:true };
-weaponLevels[3] = { url:"loops.js", completed:false, locked:true };
-weaponLevels[4] = { url:"functions.js", completed:false, locked:true };
-var shieldLevels = new Array();
-shieldLevels[0] = { url:"conditions.js", completed:false, locked:false };
-shieldLevels[1] = { url:"errors.js", completed:false, locked:true };
-shieldLevels[2] = { url:"validation.js", completed:false, locked:true };
-shieldLevels[3] = { url:"regex.js", completed:false, locked:true };
-var skillLevels = new Array();
-skillLevels[0] = { url:"objects.js", completed:false, locked:false };
-skillLevels[1] = { url:"events.js", completed:false, locked:true };
-skillLevels[2] = { url:"closures.js", completed:false, locked:true };
-$.jStorage.set('weaponLevels', weaponLevels);
-$.jStorage.set('shieldLevels', shieldLevels);
-$.jStorage.set('skillLevels', skillLevels);
+var defaultLevels = new Array();
+defaultLevels[0] = { url:"variables.js", completed:false, locked:false, lastInBracket: false };
+defaultLevels[1] = { url:"operators.js", completed:false, locked:true, lastInBracket: false };
+defaultLevels[2] = { url:"comparisons.js", completed:false, locked:true, lastInBracket: false };
+defaultLevels[3] = { url:"loops.js", completed:false, locked:true, lastInBracket: false };
+defaultLevels[4] = { url:"functions.js", completed:false, locked:true, lastInBracket: true };
+defaultLevels[5] = { url:"conditions.js", completed:false, locked:false, lastInBracket: false };
+defaultLevels[6] = { url:"errors.js", completed:false, locked:true, lastInBracket: false };
+defaultLevels[7] = { url:"validation.js", completed:false, locked:true, lastInBracket: false };
+defaultLevels[8] = { url:"regex.js", completed:false, locked:true, lastInBracket: true };
+defaultLevels[9] = { url:"objects.js", completed:false, locked:false, lastInBracket: false };
+defaultLevels[10] = { url:"events.js", completed:false, locked:true, lastInBracket: false };
+defaultLevels[11] = { url:"closures.js", completed:false, locked:true, lastInBracket: true };
+
+var levels = defaultLevels;
+levels = $.jStorage.get('levels', levels);
 
 var shieldDrain = player.maxShields / 15.0; // should take 15 seconds to drain with no intervention
 
@@ -208,47 +209,12 @@ function loadGameFile(fileURL)
 
 function showLevelsMenu()
 {
-	for(var i = 0; i < $.jStorage.get('weaponLevels').length; i++)
+	gamePaused = true;
+	$('.levels-option.completed').removeClass('completed');
+	$('.levels-option.locked').removeClass('locked');
+	for(var i = 0; i < levels.length; i++)
 	{
-		var currLevel = $.jStorage.get('weaponLevels')[i];
-		if(currLevel.completed)
-		{
-			$('.levels-option').each(function() {
-				if( $(this).attr('href') == 'levels/' + currLevel.url )
-					$(this).addClass('completed');
-			});
-		}
-		else if(currLevel.locked)
-		{
-			$('.levels-option').each(function() {
-				if( $(this).attr('href') == 'levels/' + currLevel.url )
-					$(this).addClass('locked');
-			});
-		}
-	}
-	
-	for(var i = 0; i < $.jStorage.get('shieldLevels').length; i++)
-	{
-		var currLevel = $.jStorage.get('shieldLevels')[i];
-		if(currLevel.completed)
-		{
-			$('.levels-option').each(function() {
-				if( $(this).attr('href') == 'levels/' + currLevel.url )
-					$(this).addClass('completed');
-			});
-		}
-		else if(currLevel.locked)
-		{
-			$('.levels-option').each(function() {
-				if( $(this).attr('href') == 'levels/' + currLevel.url )
-					$(this).addClass('locked');
-			});
-		}
-	}
-	
-	for(var i = 0; i < $.jStorage.get('skillLevels').length; i++)
-	{
-		var currLevel = $.jStorage.get('skillLevels')[i];
+		var currLevel = levels[i];
 		if(currLevel.completed)
 		{
 			$('.levels-option').each(function() {
@@ -270,11 +236,9 @@ function showLevelsMenu()
 }
 function hideLevelsMenu()
 {
-	if( !gamewon && gamestarted )
-	{
-		$('#page-fade').fadeOut(300);
-		$('#levels-menu').slideUp(500);
-	}
+	gamePaused = false;
+	$('#page-fade').fadeOut(300);
+	$('#levels-menu').slideUp(500);
 }
 
 // Initialize
@@ -320,37 +284,47 @@ function init()
 		showLevelsMenu();
 	});
 	$('#page-fade').bind('click', function() {
-		hideLevelsMenu();
+		if( !gamewon && gamestarted )
+		{
+			hideLevelsMenu();
+		}
 	});
 	$('.levels-option').bind('click', function(e) {
-		$('.levels-selected').removeClass('levels-selected');
-		$(this).addClass('levels-selected');
-		if(selectedLevelURL == "")
-			$('#pick-level').fadeIn();
-		selectedLevelURL = $(this).attr('href');
+		if( !$(this).hasClass('locked') ) {
+			$('.levels-selected').removeClass('levels-selected');
+			$(this).addClass('levels-selected');
+			if(selectedLevelURL == "")
+				$('#pick-level').fadeIn();
+			selectedLevelURL = $(this).attr('href');
+		}
 		return false;
 	});
 	$('#pick-level').bind('click', function() {
 		loadGameFile(selectedLevelURL);
 	});
 	$('#pause-game').bind('click', function() {
-		// TODO: add pause/unpause
 		if($(this).html() == "Pause Game") {
 			$(this).html('Resume Game');
-			// pause();
+			gamePaused = true;
 		} else {
 			$(this).html('Pause Game');
-			// unpase();
+			gamePaused = false;
 		}
 	});
 	$('#restart-game').bind('click', function() {
 		// TODO: fix reset method
-		if(file != null) {
+		if(selectedLevelURL != null && selectedLevelURL != "") {
 			loadGameFile(selectedLevelURL);
 		} else {
 			alert("Please choose a level to start playing");
 			showLevelsMenu();
 		}
+	});
+	$('#reset-levels').bind('click', function() {
+		$.jStorage.flush();
+		levels = defaultLevels;
+		$('#levels-menu').hide();
+		showLevelsMenu();
 	});
 }
 
@@ -537,17 +511,17 @@ function startGame()
 	// draw the initial file context
 	$('#z-context').html('');
 	$('#z-context').append('<p id="line-0" class="context-curr"><span class="line-number">1:</span>'+file[0].substr(0,29)+'</p>');
-	for(var i = 1; i < 20; i++) {
+	for(var i = 1; i < 20 && i < file.length; i++) {
 		$('#z-context').append('<p id="line-'+i+'" class="context-next"><span class="line-number">'+(i+1)+':</span>'+file[i].substr(0,29)+'</p>');
 	}
 	
-	lblScore = new createjs.Text( "0000000", "bold 30px Iceland, Arial", "#FFFFFF" );
 	lblScore.textAlign = "center";
 	lblScore.x = screen_width * 0.5;
 	lblScore.y = screen_height - 65;
 	stage.addChild( lblScore );
 	
 	// start music
+	sm.stop( "SND_MUSIC" );
 	sm.play( "SND_MUSIC", createjs.SoundJS.INTERRUPT_NONE , 0, 19000, 0, 1.0, 0 );
 }
 
@@ -738,209 +712,224 @@ function pewPewLasers()
 
 function tick( delta, paused ) 
 {
-    delta/=1000; // delta comes in as milliseconds, convert to seconds
-    if( gamewon )
-    {
-        showLevelsMenu();
-    }
-    else if( !gameover )
-    {
-	    elapsed += delta;
-
-		// UPDATE UI
-        uiShields.fg.scaleX = ( player.shields / player.maxShields * 1.0 );
-	    updateKeyboardUI();
-
-		// KEYBOARD STUFF
-		// if waiting for enter, and player has pressed enter
-		//		- move to the next line
-		// 		- award some shields
-	    if (readyForNextLine && Key.isDown(Key.ENTER)) {
-            player.shields += file[currLineIndex].length / 10 * 200 + 200;
-	        readyForNextLine = false;
-	        currCharIndex = 0;
-	        currLine = file[++currLineIndex];
-
-            if( !currLine )
-            {
-                gamewon = true;
-            }
-
-            //alert( escape(currLine) );
-            if( currLine == '\n' )
-            {
-            	readyForNextLine = true;
-            }
-	    }
-	    else {
-			// if the player hit the current character
-			//		- give a little shield bonus
-			//		- move to the next character, unless it's on the next line, in which case we look for the enter key next time around
-	        if (Key.isDown(currLine.charCodeAt(currCharIndex))) {
-				player.shields += letterShieldBonus;
-	            if (++currCharIndex > currLine.length - 2) { // change to -2 because we're jamming a \n onto the end of each line
-	                readyForNextLine = true;
-	            }
-				pewPewLasers();
-				player.score+=5;
-	        }
-	    }
-		
-		repopulateEnemies();
-
-		// UPDATE ENEMIES
-        for( var i = 0; i < enemies.length; ++i )
-        {
-            var e = enemies[i];
-			if( e )
+	if( !gamePaused ) {
+		delta/=1000; // delta comes in as milliseconds, convert to seconds
+		if( gamewon )
+		{
+			for(var i = 0; i < levels.length; i++)
 			{
-				if( e.isAlive )
+				var currLevel = levels[i];
+				if(selectedLevelURL.split('/')[1] == currLevel.url)
 				{
-					e.y = e.baseY + Math.sin(elapsed * 2.0 + e.animOffset) * 15.0;
-					e.x = e.baseX + Math.sin(elapsed + e.animOffset) * 28.0;
+					levels[i].completed = true;
+					if(levels[i].lastInBracket == false)
+						levels[i+1].locked = false;
+					$.jStorage.set('levels', levels);
+				}
+			}
+			
+			selectedLevelURL = "";
+			showLevelsMenu();
+		}
+		else if( !gameover )
+		{
+			elapsed += delta;
 
-					if( elapsed > e.nextAttackMark )
+			// UPDATE UI
+			uiShields.fg.scaleX = ( player.shields / player.maxShields * 1.0 );
+			updateKeyboardUI();
+
+			// KEYBOARD STUFF
+			// if waiting for enter, and player has pressed enter
+			//		- move to the next line
+			// 		- award some shields
+			if (readyForNextLine && Key.isDown(Key.ENTER)) {
+				player.shields += file[currLineIndex].length / 10 * 200 + 200;
+				readyForNextLine = false;
+				currCharIndex = 0;
+				currLine = file[++currLineIndex];
+
+				if( !currLine )
+				{
+					gamewon = true;
+				}
+
+				//alert( escape(currLine) );
+				if( currLine == '\n' )
+				{
+					readyForNextLine = true;
+				}
+			}
+			else {
+				// if the player hit the current character
+				//		- give a little shield bonus
+				//		- move to the next character, unless it's on the next line, in which case we look for the enter key next time around
+				if (Key.isDown(currLine.charCodeAt(currCharIndex))) {
+					player.shields += letterShieldBonus;
+					if (++currCharIndex > currLine.length - 2) { // change to -2 because we're jamming a \n onto the end of each line
+						readyForNextLine = true;
+					}
+					pewPewLasers();
+					player.score+=5;
+				}
+			}
+			
+			repopulateEnemies();
+
+			// UPDATE ENEMIES
+			for( var i = 0; i < enemies.length; ++i )
+			{
+				var e = enemies[i];
+				if( e )
+				{
+					if( e.isAlive )
 					{
-						e.nextAttackMark = elapsed + 5;
-						var anim = Math.round(Math.random());
-						e.gotoAndPlay( anim ? "attack1" : "attack2" );
+						e.y = e.baseY + Math.sin(elapsed * 2.0 + e.animOffset) * 15.0;
+						e.x = e.baseX + Math.sin(elapsed + e.animOffset) * 28.0;
 
-						var attackPos = { x:0, y:0 };
-						attackPos.x = player.x + Math.random() * 30 - 15;
-						attackPos.y = player.y + Math.random() * 50 - 20;
-
-						var laser = new SimpleLaser( e, attackPos, 0.25, anim == 0 ? 9 : -9, 9 );
-						stage.addChild( laser );
-						lasers.push( laser );
-
-						var expld = getNextActiveMember( smallExplodies );
-						if( expld )
+						if( elapsed > e.nextAttackMark )
 						{
-							expld.activate();
-							expld.killMark = elapsed + 0.45;
-							expld.x = attackPos.x;
-							expld.y = attackPos.y;
-							expld.gotoAndPlay("idle");
+							e.nextAttackMark = elapsed + 5;
+							var anim = Math.round(Math.random());
+							e.gotoAndPlay( anim ? "attack1" : "attack2" );
+
+							var attackPos = { x:0, y:0 };
+							attackPos.x = player.x + Math.random() * 30 - 15;
+							attackPos.y = player.y + Math.random() * 50 - 20;
+
+							var laser = new SimpleLaser( e, attackPos, 0.25, anim == 0 ? 9 : -9, 9 );
+							stage.addChild( laser );
+							lasers.push( laser );
+
+							var expld = getNextActiveMember( smallExplodies );
+							if( expld )
+							{
+								expld.activate();
+								expld.killMark = elapsed + 0.45;
+								expld.x = attackPos.x;
+								expld.y = attackPos.y;
+								expld.gotoAndPlay("idle");
+							}
+							
+							sm.play( "SND_LASER_SHOOT", createjs.SoundJS.INTERRUPT_NONE , 0, 0, 0, 0.25, 0 );
+							sm.play( "SND_PLAYER_HURT", createjs.SoundJS.INTERRUPT_NONE , 0, 0, 0, 1, 0 );
+							
+							player.shields -= e.attackDamage;
+						}
+					}
+					else
+					{
+						var be = getNextActiveMember( bigExplodies );
+						if( be )
+						{
+							be.activate();
+							be.killMark = elapsed + 0.45;
+							be.x = e.x;
+							be.y = e.y;
+							be.gotoAndPlay("idle");
 						}
 						
-						sm.play( "SND_LASER_SHOOT", createjs.SoundJS.INTERRUPT_NONE , 0, 0, 0, 0.25, 0 );
-						sm.play( "SND_PLAYER_HURT", createjs.SoundJS.INTERRUPT_NONE , 0, 0, 0, 1, 0 );
-						
-						player.shields -= e.attackDamage;
-					}
-				}
-				else
-				{
-					var be = getNextActiveMember( bigExplodies );
-					if( be )
-					{
-						be.activate();
-						be.killMark = elapsed + 0.45;
-						be.x = e.x;
-						be.y = e.y;
-						be.gotoAndPlay("idle");
-					}
-					
-					sm.play( "SND_ENEMY_EXPLODE", createjs.SoundJS.INTERRUPT_NONE , 0, 0, 0, 1, 0 );
+						sm.play( "SND_ENEMY_EXPLODE", createjs.SoundJS.INTERRUPT_NONE , 0, 0, 0, 1, 0 );
 
-					stage.removeChild( e );
-					enemies[i] = null;
-					
-					player.score += Math.round(Math.random()*20) + 100;
+						stage.removeChild( e );
+						enemies[i] = null;
+						
+						player.score += Math.round(Math.random()*20) + 100;
+					}
 				}
 			}
-        }
 
-		
-		// UPDATE LASERS
-        for( var i = 0; i < lasers.length; ++i )
-        {
-            if( !lasers[i].alive() )
-            {
-                stage.removeChild( lasers[i] );
-                lasers.splice( i--, 1 );
-            }
-        }
-
-        // UPDATE EXPLODIES
-        for( var i = 0; i < explodies.length; ++i )
-        {
-        	if( elapsed > explodies[i].killMark )
-        	{
-        		stage.removeChild( explodies[i] );
-        		explodies.splice( i--, 1 );
-        	}
-        }
-
-        // UPDATE BIG EXPLODIES
-        for( var i = 0; i < bigExplodies.length; ++i )
-        {
-        	if( bigExplodies[i].active && elapsed > bigExplodies[i].killMark )
-        	{
-        		bigExplodies[i].deactivate();
-        	}
-        }
-
-        // UPDATE SMALL EXPLODIES
-        for( var i = 0; i < smallExplodies.length; ++i )
-        {
-        	if( smallExplodies[i].active && elapsed > smallExplodies[i].killMark )
-        	{
-        		smallExplodies[i].deactivate();
-        	}
-        }
-
-        // UPDATE GREEN EXPLODIES
-        for( var i = 0; i < greenExplodies.length; ++i )
-        {
-        	if( greenExplodies[i].active && elapsed > greenExplodies[i].killMark )
-        	{
-        		greenExplodies[i].deactivate();
-        	}
-        }
-		
-		if( player.displayScore != player.score )
-		{
-			var deltaScore = player.score - player.displayScore;
-			var change = Math.round( deltaScore * 0.99 * delta * 4 );
-			player.displayScore += Math.abs( change ) >= 1 ? change : 1;
-			if( player.displayScore > player.score )
+			
+			// UPDATE LASERS
+			for( var i = 0; i < lasers.length; ++i )
 			{
-				player.displayScore = player.score;
+				if( !lasers[i].alive() )
+				{
+					stage.removeChild( lasers[i] );
+					lasers.splice( i--, 1 );
+				}
+			}
+
+			// UPDATE EXPLODIES
+			for( var i = 0; i < explodies.length; ++i )
+			{
+				if( elapsed > explodies[i].killMark )
+				{
+					stage.removeChild( explodies[i] );
+					explodies.splice( i--, 1 );
+				}
+			}
+
+			// UPDATE BIG EXPLODIES
+			for( var i = 0; i < bigExplodies.length; ++i )
+			{
+				if( bigExplodies[i].active && elapsed > bigExplodies[i].killMark )
+				{
+					bigExplodies[i].deactivate();
+				}
+			}
+
+			// UPDATE SMALL EXPLODIES
+			for( var i = 0; i < smallExplodies.length; ++i )
+			{
+				if( smallExplodies[i].active && elapsed > smallExplodies[i].killMark )
+				{
+					smallExplodies[i].deactivate();
+				}
+			}
+
+			// UPDATE GREEN EXPLODIES
+			for( var i = 0; i < greenExplodies.length; ++i )
+			{
+				if( greenExplodies[i].active && elapsed > greenExplodies[i].killMark )
+				{
+					greenExplodies[i].deactivate();
+				}
+			}
+			
+			if( player.displayScore != player.score )
+			{
+				var deltaScore = player.score - player.displayScore;
+				var change = Math.round( deltaScore * 0.99 * delta * 4 );
+				player.displayScore += Math.abs( change ) >= 1 ? change : 1;
+				if( player.displayScore > player.score )
+				{
+					player.displayScore = player.score;
+				}
+			}
+
+			// SHIELD VALUE CLAMPING
+			if( player.shields > player.maxShields ){ player.shields = player.maxShields; }
+			if( player.shields < 0 ){ player.shields = 0; }
+			
+			setScoreDisplay( player.displayScore );
+
+			gameover = !player.alive();
+			if( gameover )
+			{
+				// do once off gameover type stuff, like make gameover ui invisible
+				uiGameoverContainer.visible = true;
+				pauseAnimations();
+			}
+			else if( gamewon )
+			{
+				// do once off stuff, like make new file selection ui visible
 			}
 		}
-
-		// SHIELD VALUE CLAMPING
-        if( player.shields > player.maxShields ){ player.shields = player.maxShields; }
-        if( player.shields < 0 ){ player.shields = 0; }
-		
-		setScoreDisplay( player.displayScore );
-
-        gameover = !player.alive();
-        if( gameover )
-        {
-            // do once off gameover type stuff, like make gameover ui invisible
-            uiGameoverContainer.visible = true;
-            pauseAnimations();
-        }
-        else if( gamewon )
-        {
-            // do once off stuff, like make new file selection ui visible
-        }
-    }
-    else // gameover
-    {
-        if( Key.isDown( Key.SPACE ) )
-        {
-            gameover = false; // go back to playing normally
-            uiGameoverContainer.visible = false;
-            // TODO: restart the game
-            player.shields = player.maxShields;
-            resumeAnimations();
-        }
-    }
-    stage.update( delta );
-    Key.clearBuffer();
+		else // gameover
+		{
+			if( Key.isDown( Key.SPACE ) )
+			{
+				gameover = false; // go back to playing normally
+				uiGameoverContainer.visible = false;
+				// TODO: restart the game
+				player.shields = player.maxShields;
+				resumeAnimations();
+			}
+		}
+		stage.update( delta );
+		Key.clearBuffer();
+	}
 }
 
 function updateKeyboardUI() 
