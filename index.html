@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Z-Type</title>
+		<title>Z-Code</title>
 		<link href='http://fonts.googleapis.com/css?family=Iceland' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" href="styles/foundation.min.css">
 		<link rel="stylesheet" href="styles/site.css">
@@ -12,23 +12,39 @@
 		<script src="scripts/jquery.js"></script>
 		<script src="scripts/modernizr.foundation.js"></script>
 		<script src="scripts/foundation.min.js"></script>
-		<script src="scripts/jStorage.min.js"></script>
+		<script src="scripts/jstorage.min.js"></script>
 		<script src="scripts/main.js"></script>
 		
 		<!-- IE Fix for HTML5 Tags -->
 		<!--[if lt IE 9]>
 			<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
+		
+		<script type="text/javascript">
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', 'UA-36320356-2']);
+			_gaq.push(['_setDomainName', 'ianlamb.com']);
+			_gaq.push(['_trackPageview']);
+
+			(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			})();
+		</script>
 	</head>
 	<body>
 		<div id="page-fade"></div>
 		
 		<div id="header">
-			<h2 style="float:left;">Z-Type</h2>
-			<p style="float:right;margin: 10px 10px 0;">
-				Created by:<br />
-				<a href="http://dbrown.ca">Derek Brown</a> and <a href="http://ianlamb.com">Ian Lamb</a>
-			</p>
+			<div class="four columns"><h2>Z-Type</h2></div>
+			<div class="four columns"><p style="margin-top:10px;">Currently only works in Chrome!</p></div>
+			<div class="four columns">
+				<p style="margin-top:10px;">
+					Created by:<br />
+					<a href="http://dbrown.ca">Derek Brown</a> and <a href="http://ianlamb.com">Ian Lamb</a>
+				</p>
+			</div>
 		</div>
 		
 		<div id="content" class="row">

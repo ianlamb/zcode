@@ -30,6 +30,8 @@ var lasers = new Array();
 var preloader;
 
 var gamePaused = true;
+var musicStarted = false;
+var SND_MUSIC;
 
 var player = {
 	maxShields: 1000,
@@ -185,12 +187,11 @@ function loadGameFile(fileURL)
 				gamestarted = true;
 				currLineIndex = 0;
 				currCharIndex = 0;
+				currLine = file[currLineIndex];
 				player.shields = player.maxShields;
 				readyForNextLine = false;
 
 				hideLevelsMenu();
-				//$('#page-fade').fadeOut(300);
-				//$('#levels-menu').slideUp(500);
 
 				startGame();
 			},
@@ -357,7 +358,8 @@ function handleFileError(o) {
 
 function startGame() 
 {
-	var SND_MUSIC = {src:"sounds/music.ogg", id:"SND_MUSIC"};
+	if(!musicStarted)
+		SND_MUSIC = {src:"sounds/music.ogg", id:"SND_MUSIC"};
 	var SND_LASER_SHOOT = {src:"sounds/Laser_Shoot2.ogg", id:"SND_LASER_SHOOT"};
 	var SND_ENEMY_EXPLODE = {src:"sounds/enemyExplode.ogg", id:"SND_ENEMY_EXPLODE"};
 	var SND_PLAYER_HURT = {src:"sounds/playerDamage.ogg", id:"SND_PLAYER_HURT"};
@@ -515,14 +517,19 @@ function startGame()
 		$('#z-context').append('<p id="line-'+i+'" class="context-next"><span class="line-number">'+(i+1)+':</span>'+file[i].substr(0,29)+'</p>');
 	}
 	
+	player.score = $.jStorage.get('score', 0);
+	
 	lblScore.textAlign = "center";
 	lblScore.x = screen_width * 0.5;
 	lblScore.y = screen_height - 65;
 	stage.addChild( lblScore );
 	
 	// start music
-	sm.stop( "SND_MUSIC" );
-	sm.play( "SND_MUSIC", createjs.SoundJS.INTERRUPT_NONE , 0, 19000, 0, 1.0, 0 );
+	if(!musicStarted)
+	{
+		sm.play( "SND_MUSIC", createjs.SoundJS.INTERRUPT_NONE , 0, 19000, -1, 1.0, 0 );
+		musicStarted = true;
+	}
 }
 
 function setScoreDisplay( value )
@@ -728,6 +735,7 @@ function tick( delta, paused )
 				}
 			}
 			
+			$.jStorage.set('score', player.score);
 			selectedLevelURL = "";
 			showLevelsMenu();
 		}
@@ -964,7 +972,7 @@ function updateKeyboardUI()
     var lblLetterCurr = document.getElementById("curr-letter");
     var lblLettersRemaining = document.getElementById("letters-remaining");
     var lblNextLinePrompt = document.getElementById("next-line-prompt");
-    if (file[currLineIndex]) {
+    if (currLine) {
         lblLettersTyped.textContent = currLine.substring(0, currCharIndex);
         var currChar = currLine.charAt(currCharIndex);
         lblLetterCurr.textContent = currChar == ' ' ? CH_SPACE_STANDIN : currChar;
